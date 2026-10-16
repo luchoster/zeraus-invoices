@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "sanity dev",
     "build": "sanity build",
-    "deploy": "sanity deploy"
+    "deploy": "sanity deploy",
+    "render-invoice": "tsx scripts/render-invoice.tsx"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.2",
@@ -18,8 +19,10 @@
     "styled-components": "^6.3.11"
   },
   "devDependencies": {
+    "@sanity/client": "^8.9.0",
     "@types/react": "^19.2.14",
     "sanity": "^5.17.1",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

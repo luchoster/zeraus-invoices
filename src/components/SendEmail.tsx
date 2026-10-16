@@ -16,8 +16,7 @@ import {
 } from '@sanity/ui'
 import {Mail, Send} from 'lucide-react'
 import {useCompany} from '../CompanyContext'
-import InvoiceTemplate from './InvoiceTemplate'
-import ZeraInvoiceTemplate from './ZeraInvoiceTemplate'
+import {invoiceFileName, templateFor} from '../pdf/selectTemplate'
 
 interface Props {
   invoice: any
@@ -29,7 +28,7 @@ export function SendEmail({invoice}: Props) {
   const [sending, setSending] = useState(false)
   const toast = useToast()
   const company = useCompany()
-  const Template = company.id === 'zeraus' ? ZeraInvoiceTemplate : InvoiceTemplate
+  const Template = templateFor(company.id)
   const client = useClient({apiVersion: '2025-01-01'})
 
   const onClose = useCallback(() => {
@@ -58,10 +57,7 @@ export function SendEmail({invoice}: Props) {
         reader.readAsDataURL(blob)
       })
 
-      const clientName = invoice.client?.client_name
-        ? invoice.client.client_name.toLowerCase().split(' ').join('-')
-        : 'invoice'
-      const filename = `${invoice.invoice_number}-${clientName}.pdf`
+      const filename = invoiceFileName(invoice)
 
       await client
         .patch(invoice._id)

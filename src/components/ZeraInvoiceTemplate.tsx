@@ -2,6 +2,7 @@ import {Document, Image, Page, StyleSheet, Text, View} from '@react-pdf/renderer
 
 import BlackIcon from '../assets/zeraus/invoice-icon-black.png'
 import BlackLogo from '../assets/zeraus/logo-black.png'
+import {formatMoney} from '../pdf/formatMoney'
 
 const DARK = '#191919'
 const ACCENT = '#874da2'
@@ -169,7 +170,21 @@ interface InvoiceData {
   tax?: number
 }
 
-export default function ZeraInvoiceTemplate({invoice}: {invoice: InvoiceData}) {
+export interface ZeraInvoiceImages {
+  logo?: string
+  icon?: string
+}
+
+export default function ZeraInvoiceTemplate({
+  invoice,
+  images,
+}: {
+  invoice: InvoiceData
+  images?: ZeraInvoiceImages
+}) {
+  const logoSrc = images?.logo ?? BlackLogo
+  const iconSrc = images?.icon ?? BlackIcon
+
   let subTotal = 0
   if (invoice.invoiceItems) {
     invoice.invoiceItems.forEach((item) => {
@@ -185,10 +200,10 @@ export default function ZeraInvoiceTemplate({invoice}: {invoice: InvoiceData}) {
         <View style={styles.background}>
           <View fixed>
             <View>
-              <Image style={styles.companyLogo} src={BlackLogo} />
+              <Image style={styles.companyLogo} src={logoSrc} />
             </View>
             <View style={styles.invoiceIcon}>
-              <Image style={styles.invoiceLogoImg} src={BlackIcon} />
+              <Image style={styles.invoiceLogoImg} src={iconSrc} />
             </View>
           </View>
           <View style={styles.invoiceContainer}>
@@ -244,16 +259,16 @@ export default function ZeraInvoiceTemplate({invoice}: {invoice: InvoiceData}) {
                       <Text>{item.quantity}</Text>
                     </View>
                     <View style={styles.col}>
-                      <Text>$ {item.price.toLocaleString()}</Text>
+                      <Text>$ {formatMoney(item.price)}</Text>
                     </View>
                     <View style={styles.col}>
-                      <Text>${(item.price * item.quantity).toLocaleString()}</Text>
+                      <Text>${formatMoney(item.price * item.quantity)}</Text>
                     </View>
                   </View>
                 ))}
               </View>
               <View style={styles.invoiceTotals}>
-                <Text>Total Due: ${total.toLocaleString()}</Text>
+                <Text>Total Due: ${formatMoney(total)}</Text>
               </View>
             </View>
             <View style={styles.companyInfo}>
