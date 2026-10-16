@@ -1,6 +1,6 @@
 import {memo, Suspense} from 'react'
 import {useQuery} from '@sanity/sdk-react'
-import {Box, Card, Flex, Grid, Heading, Text, Spinner} from '@sanity/ui'
+import {Box, Card, Flex, Grid, Heading, Stack, Text, Spinner, useMediaIndex} from '@sanity/ui'
 import UpdatePaymentStatus from './components/UpdatePaymentStatus'
 import GenerateInvoicePDF from './components/GenerateInvoicePdf'
 import {SendEmail} from './components/SendEmail'
@@ -10,7 +10,18 @@ interface Props {
   currentYear: number
 }
 
-const InvoiceRow = memo(function InvoiceRow({invoice, index}: {invoice: any; index: number}) {
+// Theme media breakpoints are [360, 600, 900, ...]; the 8-column table needs >= 900px.
+const TABLE_MEDIA_INDEX = 3
+
+const InvoiceRow = memo(function InvoiceRow({
+  invoice,
+  index,
+  compact,
+}: {
+  invoice: any
+  index: number
+  compact: boolean
+}) {
   let totalQty = 0
   let totalDue = 0
   invoice.invoiceItems?.forEach((item: any) => {
@@ -18,13 +29,57 @@ const InvoiceRow = memo(function InvoiceRow({invoice, index}: {invoice: any; ind
     totalDue += item.price * item.quantity
   })
 
+  const tone = index % 2 === 0 ? 'transparent' : 'primary'
+
+  if (compact) {
+    return (
+      <Card padding={3} radius={2} shadow={1} tone={tone}>
+        <Stack space={3}>
+          <Flex align="flex-start" justify="space-between" gap={3}>
+            <Stack space={2} flex={1} style={{minWidth: 0}}>
+              <Text size={1} weight="bold">
+                #{invoice.invoice_number}
+              </Text>
+              <Text size={1} textOverflow="ellipsis">
+                {invoice.client?.client_name}
+              </Text>
+            </Stack>
+            <Stack space={2} style={{textAlign: 'right'}}>
+              <Text size={1} weight="bold">
+                $ {totalDue.toLocaleString()}
+              </Text>
+              <Text size={0} muted>
+                {totalQty} hrs / qty
+              </Text>
+            </Stack>
+          </Flex>
+          <Flex wrap="wrap" gap={3}>
+            <Text size={0} muted>
+              Issued {invoice.invoice_date}
+            </Text>
+            <Text size={0} muted>
+              Due {invoice.invoice_due_date}
+            </Text>
+          </Flex>
+          <Flex wrap="wrap" align="center" gap={2}>
+            <Box flex={1} style={{minWidth: 120}}>
+              <UpdatePaymentStatus
+                documentId={invoice._id}
+                paymentStatus={invoice.payment_status}
+              />
+            </Box>
+            <Flex gap={2}>
+              <GenerateInvoicePDF invoice={invoice} />
+              <SendEmail invoice={invoice} />
+            </Flex>
+          </Flex>
+        </Stack>
+      </Card>
+    )
+  }
+
   return (
-    <Card
-      padding={4}
-      radius={2}
-      shadow={1}
-      tone={index % 2 === 0 ? 'transparent' : 'primary'}
-    >
+    <Card padding={4} radius={2} shadow={1} tone={tone}>
       <Grid columns={[8]} gap={1}>
         <Flex align="center" justify="center">
           <Text size={1}>{invoice.invoice_number}</Text>
@@ -71,6 +126,9 @@ export default function InvoicesList({currentYear}: Props) {
     },
   })
 
+  // Pick one row layout in JS so each row's stateful controls mount only once.
+  const compact = useMediaIndex() < TABLE_MEDIA_INDEX
+
   let totalIncome = 0
   invoices?.forEach((inv: any) => {
     if (inv.payment_status === 'paid') {
@@ -82,9 +140,9 @@ export default function InvoicesList({currentYear}: Props) {
 
   return (
     <>
-      <Flex align="center" justify="space-between" gap={3} paddingBottom={4}>
+      <Flex align="center" justify="space-between" wrap="wrap" gap={3} paddingBottom={4}>
         <CreateInvoiceButton />
-        <Flex align="center" gap={3}>
+        <Flex align="center" wrap="wrap" gap={3}>
           <Text size={1} muted style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'}}>Total</Text>
           <Heading size={3}>${totalIncome.toLocaleString()}</Heading>
         </Flex>
@@ -99,8 +157,14 @@ export default function InvoicesList({currentYear}: Props) {
       )}
 
       {invoices && invoices.length > 0 && (
-        <Box>
-          <Card padding={4} radius={2} shadow={1} tone="inherit">
+        <Stack space={compact ? 2 : 0}>
+          <Card
+            padding={4}
+            radius={2}
+            shadow={1}
+            tone="inherit"
+            display={['none', 'none', 'none', 'block']}
+          >
             <Grid columns={[8]} gap={1}>
               <Flex align="center" justify="center">
                 <Text size={1} weight="bold">Invoice #</Text>
@@ -131,10 +195,10 @@ export default function InvoicesList({currentYear}: Props) {
 
           {invoices.map((invoice: any, index: number) => (
             <Suspense key={invoice._id} fallback={<Card padding={4}><Spinner /></Card>}>
-              <InvoiceRow invoice={invoice} index={index} />
+              <InvoiceRow invoice={invoice} index={index} compact={compact} />
             </Suspense>
           ))}
-        </Box>
+        </Stack>
       )}
     </>
   )

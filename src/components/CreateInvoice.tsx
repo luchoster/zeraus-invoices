@@ -212,12 +212,14 @@ function DrawerForm({onClose}: {onClose: () => void}) {
 
   return (
     <Stack space={4} padding={4}>
-      <Flex align="center" justify="space-between">
-        <Heading size={2}>New invoice — {company.name}</Heading>
+      <Flex align="center" justify="space-between" gap={2}>
+        <Box flex={1} style={{minWidth: 0}}>
+          <Heading size={[1, 1, 2]}>New invoice — {company.name}</Heading>
+        </Box>
         <Button mode="bleed" icon={X} onClick={onClose} aria-label="Close" />
       </Flex>
 
-      <Grid columns={2} gap={3}>
+      <Grid columns={[1, 1, 2]} gap={3}>
         <Stack space={2}>
           <Label size={1}>Invoice #</Label>
           <TextInput
@@ -267,7 +269,7 @@ function DrawerForm({onClose}: {onClose: () => void}) {
       {isNewClient && (
         <Card padding={3} radius={2} border tone="transparent">
           <Stack space={3}>
-            <Grid columns={2} gap={3}>
+            <Grid columns={[1, 1, 2]} gap={3}>
               <Stack space={2}>
                 <Label size={1}>Name *</Label>
                 <TextInput
@@ -300,7 +302,7 @@ function DrawerForm({onClose}: {onClose: () => void}) {
                 />
               </Stack>
             </Grid>
-            <Grid columns={2} gap={3}>
+            <Grid columns={[1, 1, 2]} gap={3}>
               <Stack space={2}>
                 <Label size={1}>Address 1</Label>
                 <TextInput
@@ -320,7 +322,7 @@ function DrawerForm({onClose}: {onClose: () => void}) {
                 />
               </Stack>
             </Grid>
-            <Grid columns={3} gap={3}>
+            <Grid columns={[1, 1, 3]} gap={3}>
               <Stack space={2}>
                 <Label size={1}>City</Label>
                 <TextInput
@@ -360,31 +362,31 @@ function DrawerForm({onClose}: {onClose: () => void}) {
           />
         </Flex>
         {items.map((it) => (
-          <Grid key={it._key} columns={12} gap={2} style={{alignItems: 'center'}}>
-            <Box style={{gridColumn: 'span 6'}}>
+          <Flex key={it._key} direction={['column', 'column', 'row']} gap={2}>
+            <Box flex={[0, 0, 6]}>
               <TextInput
                 placeholder="Description"
                 value={it.description}
                 onChange={(e) => updateItem(it._key, {description: e.currentTarget.value})}
               />
             </Box>
-            <Box style={{gridColumn: 'span 2'}}>
-              <TextInput
-                type="number"
-                placeholder="Qty"
-                value={it.quantity}
-                onChange={(e) => updateItem(it._key, {quantity: e.currentTarget.value})}
-              />
-            </Box>
-            <Box style={{gridColumn: 'span 3'}}>
-              <TextInput
-                type="number"
-                placeholder="Price"
-                value={it.price}
-                onChange={(e) => updateItem(it._key, {price: e.currentTarget.value})}
-              />
-            </Box>
-            <Box style={{gridColumn: 'span 1'}}>
+            <Flex flex={[0, 0, 6]} align="center" gap={2}>
+              <Box flex={2} style={{minWidth: 0}}>
+                <TextInput
+                  type="number"
+                  placeholder="Qty"
+                  value={it.quantity}
+                  onChange={(e) => updateItem(it._key, {quantity: e.currentTarget.value})}
+                />
+              </Box>
+              <Box flex={3} style={{minWidth: 0}}>
+                <TextInput
+                  type="number"
+                  placeholder="Price"
+                  value={it.price}
+                  onChange={(e) => updateItem(it._key, {price: e.currentTarget.value})}
+                />
+              </Box>
               <Button
                 mode="bleed"
                 tone="critical"
@@ -393,12 +395,12 @@ function DrawerForm({onClose}: {onClose: () => void}) {
                 disabled={items.length === 1}
                 aria-label="Remove item"
               />
-            </Box>
-          </Grid>
+            </Flex>
+          </Flex>
         ))}
       </Stack>
 
-      <Grid columns={2} gap={3}>
+      <Grid columns={[1, 1, 2]} gap={3}>
         <Stack space={2}>
           <Label size={1}>Tax</Label>
           <TextInput
@@ -418,7 +420,7 @@ function DrawerForm({onClose}: {onClose: () => void}) {
         </Flex>
       </Grid>
 
-      <Flex gap={3} justify="flex-end" paddingTop={2}>
+      <Flex gap={3} justify="flex-end" wrap="wrap" paddingTop={2}>
         <Button mode="ghost" text="Cancel" onClick={onClose} disabled={saving} />
         <Button
           tone="primary"
