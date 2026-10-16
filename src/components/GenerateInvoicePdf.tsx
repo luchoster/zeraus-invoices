@@ -3,8 +3,7 @@ import {PDFDownloadLink} from '@react-pdf/renderer'
 import {Button, Spinner} from '@sanity/ui'
 import {Download} from 'lucide-react'
 import {useCompany} from '../CompanyContext'
-import InvoiceTemplate from './InvoiceTemplate'
-import ZeraInvoiceTemplate from './ZeraInvoiceTemplate'
+import {invoiceFileName, templateFor} from '../pdf/selectTemplate'
 
 interface Props {
   invoice: any
@@ -14,10 +13,7 @@ export default function GenerateInvoicePDF({invoice}: Props) {
   const company = useCompany()
   const [ready, setReady] = useState(false)
 
-  const clientName = invoice.client?.client_name
-    ? invoice.client.client_name.toLowerCase().split(' ').join('-')
-    : 'invoice'
-  const fileName = `${invoice.invoice_number}-${clientName}.pdf`
+  const fileName = invoiceFileName(invoice)
 
   if (!ready) {
     return (
@@ -32,7 +28,7 @@ export default function GenerateInvoicePDF({invoice}: Props) {
     )
   }
 
-  const Template = company.id === 'zeraus' ? ZeraInvoiceTemplate : InvoiceTemplate
+  const Template = templateFor(company.id)
 
   return (
     <PDFDownloadLink document={<Template invoice={invoice} />} fileName={fileName}>
