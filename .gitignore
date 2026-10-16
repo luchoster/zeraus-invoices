@@ -1,0 +1,6 @@
+.env*
+.claude/
+.sanity/
+node_modules/
+
+dist/
