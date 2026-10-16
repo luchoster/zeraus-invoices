@@ -45,7 +45,15 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <ToastProvider>
-        <div style={{padding: '16px 16px 0', display: 'flex', alignItems: 'center', gap: 24}}>
+        <div
+          style={{
+            padding: '16px 16px 0',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '12px 24px',
+          }}
+        >
           <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
             <label style={labelStyle}>Company</label>
             <select
